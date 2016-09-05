@@ -51,11 +51,11 @@ def getEndCursor(tag, token):
 
 def getTagImgId(tag, token, cursor, count):
     tag_url = 'https://www.instagram.com/query/'
-    lolll = 'https://www.instagram.com/explore/tags/'+tag+'/'
+    referer_url = 'https://www.instagram.com/explore/tags/'+tag+'/'
     query = "ig_hashtag("+ tag +") { media.after("+ cursor +", "+ str(count) +") {count,nodes {id},page_info}}"
   
     data = dict(csrfmiddlewaretoken=token, q=query, ref='tags::show')
-    r = client.post(tag_url, data=data, headers=dict(Referer=lolll))
+    r = client.post(tag_url, data=data, headers=dict(Referer=referer_url))
     jsonObj = json.loads(r.text)
     mediaId = jsonObj['media']['nodes']
     return mediaId
