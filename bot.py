@@ -23,9 +23,9 @@ arrayTag = ['welltravelled', 'exploremore', 'exklusive_shot', 'photo_russia',
             'peoplescreatives','folktravel','exploringtheglobe','FolkGood','liveauthentic',
             'exploretocreate','folkmagazine','livefolk','ig_photooftheday','featuremeinstagood']
 
-randomTime = [24,30,40,55,68,73,88,95,100]
+randomTime = [24,27,31,35,38,41,44,51,59]
 
-countImg = 10
+countImg = 20
 
 def login(username, password):
     url = 'https://www.instagram.com/accounts/login/?force_classic_login=&next='
@@ -45,17 +45,17 @@ def getEndCursor(tag, token):
     data = dict(csrfmiddlewaretoken=token)
     r = client.get(url, data=data, headers=dict(Referer=url))
     html = r.text
-    cursor = re.findall(r'"end_cursor": "([^&]*)", "has_next_page"', html)[0]
+    jsonObj = json.loads(re.findall(r'_sharedData = ([^&]*);</sc', html)[0])
+    cursor = jsonObj['entry_data']['TagPage'][0]['tag']['media']['page_info']['end_cursor']
     return cursor
-    
 
 def getTagImgId(tag, token, cursor, count):
     tag_url = 'https://www.instagram.com/query/'
-    referer_url = 'https://www.instagram.com/explore/tags/'+tag+'/'
+    img_url = 'https://www.instagram.com/explore/tags/'+tag+'/'
     query = "ig_hashtag("+ tag +") { media.after("+ cursor +", "+ str(count) +") {count,nodes {id},page_info}}"
   
     data = dict(csrfmiddlewaretoken=token, q=query, ref='tags::show')
-    r = client.post(tag_url, data=data, headers=dict(Referer=referer_url))
+    r = client.post(tag_url, data=data, headers=dict(Referer=img_url))
     jsonObj = json.loads(r.text)
     mediaId = jsonObj['media']['nodes']
     return mediaId
