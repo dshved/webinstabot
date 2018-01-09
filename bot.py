@@ -46,35 +46,39 @@ def getEndCursor(tag, token):
     r = client.get(url, data=data, headers=dict(Referer=url))
     html = r.text
     jsonObj = json.loads(re.findall(r'_sharedData = ([^&]*);</sc', html)[0])
-    cursor = jsonObj['entry_data']['TagPage'][0]['tag']['media']['page_info']['end_cursor']
+    cursor = jsonObj['entry_data']['TagPage'][0]['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor']
+    
     return cursor
 
 def getTagImgId(tag, token, cursor, count):
-    tag_url = 'https://www.instagram.com/query/'
-    img_url = 'https://www.instagram.com/explore/tags/'+tag+'/'
-    query = "ig_hashtag("+ tag +") { media.after("+ cursor +", "+ str(count) +") {count,nodes {id},page_info}}"
-  
-    data = dict(csrfmiddlewaretoken=token, q=query, ref='tags::show')
-    r = client.post(tag_url, data=data, headers=dict(Referer=img_url))
-    jsonObj = json.loads(r.text)
-    mediaId = jsonObj['media']['nodes']
+    url = 'https://www.instagram.com/explore/tags/'+tag+'/'
+    data = dict(csrfmiddlewaretoken=token)
+    r = client.get(url, data=data, headers=dict(Referer=url))
+    html = r.text
+    jsonObj = json.loads(re.findall(r'_sharedData = ([^&]*);</sc', html)[0])
+    mediaId = jsonObj['entry_data']['TagPage'][0]['graphql']['hashtag']['edge_hashtag_to_top_posts']['edges']
+    
     return mediaId
 
 def like(tagArray, token):
+    count = 0
     while True:
         for tag in tagArray:
             random_tag = random.choice(arrayTag)
             print 'Current tag: ' +random_tag
             cursor = getEndCursor(random_tag, token)
             imgId = getTagImgId(random_tag, token, cursor, countImg)
+            
             data = dict(csrfmiddlewaretoken=token)
             for i in imgId:
                 timeDelay = random.choice(randomTime)
                 print 'Current delay: ' + str(timeDelay)
                 time.sleep(timeDelay)
-                url = 'https://www.instagram.com/web/likes/'+ str(i['id']) +'/like/'
+                url = 'https://www.instagram.com/web/likes/'+ str(i['node']['id']) +'/like/'
                 r = client.post(url, data=data, headers=dict(Referer='https://www.instagram.com/web/'))
-                print r.text  
+                print r.text
+                count += 1
+                print count
 
 client = requests.session()
 csrftoken = login(username, password)
