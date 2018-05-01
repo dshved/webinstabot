@@ -69,7 +69,7 @@ def like(tagArray, token):
             cursor = getEndCursor(random_tag, token)
             imgId = getTagImgId(random_tag, token, cursor, countImg)
             
-            data = dict(csrfmiddlewaretoken=token)
+            data = dict(csrfmiddlewaretoken=token, Domain='.instagram.com')
             for i in imgId:
                 timeDelay = random.choice(randomTime)
                 print 'Current delay: ' + str(timeDelay)
