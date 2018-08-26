@@ -44,8 +44,9 @@ def getEndCursor(tag, token):
     url = 'https://www.instagram.com/explore/tags/'+tag+'/'
     data = dict(csrfmiddlewaretoken=token)
     r = client.get(url, data=data, headers=dict(Referer=url))
-    html = r.text
-    jsonObj = json.loads(re.findall(r'_sharedData = ([^&]*);</sc', html)[0])
+    s = re.findall(r'_sharedData = ([^&]*);</sc', r.text)[0]
+    s = re.findall(r'([^&]*);</sc', res)[0]
+    jsonObj = json.loads(s)
     cursor = jsonObj['entry_data']['TagPage'][0]['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor']
     
     return cursor
@@ -54,8 +55,9 @@ def getTagImgId(tag, token, cursor, count):
     url = 'https://www.instagram.com/explore/tags/'+tag+'/'
     data = dict(csrfmiddlewaretoken=token)
     r = client.get(url, data=data, headers=dict(Referer=url))
-    html = r.text
-    jsonObj = json.loads(re.findall(r'_sharedData = ([^&]*);</sc', html)[0])
+    r = client.get(url, data=data, headers=dict(Referer=url))
+    s = re.findall(r'_sharedData = ([^&]*);</sc', r.text)[0]
+    s = re.findall(r'([^&]*);</sc', res)[0]
     mediaId = jsonObj['entry_data']['TagPage'][0]['graphql']['hashtag']['edge_hashtag_to_top_posts']['edges']
     
     return mediaId
